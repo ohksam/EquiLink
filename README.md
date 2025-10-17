@@ -1,66 +1,49 @@
-## Foundry
+# EquiLink
 
-**Foundry is a blazing fast, portable and modular toolkit for Ethereum application development written in Rust.**
+**A crypto portfolio strategy simulator using real on-chain data.**
 
-Foundry consists of:
+EquiLink lets users simulate rebalancing strategies (e.g., stop-loss triggers) on a crypto portfolio using live Chainlink price feeds — all without risking real funds. It’s a fast, safe, and flexible way to test what would’ve happened *if* you had implemented a specific risk management plan.
 
-- **Forge**: Ethereum testing framework (like Truffle, Hardhat and DappTools).
-- **Cast**: Swiss army knife for interacting with EVM smart contracts, sending transactions and getting chain data.
-- **Anvil**: Local Ethereum node, akin to Ganache, Hardhat Network.
-- **Chisel**: Fast, utilitarian, and verbose solidity REPL.
+---
 
-## Documentation
+## 🌐 Live Demo
 
-https://book.getfoundry.sh/
+> Coming soon...
 
-## Usage
+---
 
-### Build
+## 🧠 What It Does
 
-```shell
-$ forge build
-```
+- 🔮 **Simulates stop-loss strategies**: Sell a % of an asset if it drops below a threshold.
+- 📈 **Compares outcomes**: See how your portfolio performs *with* and *without* your strategy.
+- 🔗 **Powered by Chainlink**: Uses real-time, decentralized price feeds for ETH, BTC, etc.
+- 🔒 **Stateless & Safe**: Nothing is stored, no transactions executed — pure simulation.
+- ⚡ **Fast results**: Enter your inputs and see simulated performance in seconds.
 
-### Test
+---
 
-```shell
-$ forge test
-```
+## 🧪 Example Use Case
 
-### Format
+> “I want to see what would’ve happened if I sold 20% of my ETH when it dropped 15% from my entry price.”
 
-```shell
-$ forge fmt
-```
+Input:
+- Portfolio: $500 ETH, $500 BTC
+- Rule: “If ETH drops 15%, sell 20% to USDC”
 
-### Gas Snapshots
+Output:
+- Simulated value with stop-loss: `$945.00`
+- Value if HODLed: `$910.00`
+- Difference: `+$35.00` gain from strategy
 
-```shell
-$ forge snapshot
-```
+---
 
-### Anvil
+## 📦 Tech Stack
 
-```shell
-$ anvil
-```
+| Layer | Tech |
+|-------|------|
+| Smart Contract | Solidity, Chainlink Price Feeds |
+| Frontend | React, TypeScript, Vite |
+| Wallet / Read Ops | wagmi + viem |
+| Styling | TailwindCSS |
 
-### Deploy
-
-```shell
-$ forge script script/Counter.s.sol:CounterScript --rpc-url <your_rpc_url> --private-key <your_private_key>
-```
-
-### Cast
-
-```shell
-$ cast <subcommand>
-```
-
-### Help
-
-```shell
-$ forge --help
-$ anvil --help
-$ cast --help
-```
+---
