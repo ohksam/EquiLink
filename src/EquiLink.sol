@@ -49,7 +49,7 @@ contract EquiLink {
             uint256 tokensToSell = (tokenAmount * rule.percentToSell) / 100;
             uint256 tokensKept = (tokenAmount - tokensToSell);
 
-            uint256 valueSoldToStable = (tokensToSell * currentPrice) / 1e18;
+            uint256 valueSoldToStable = (tokensToSell * thresholdPrice) / 1e18;
             uint256 valueKept = (tokensKept * currentPrice) / 1e18;
 
             return valueSoldToStable + valueKept;
