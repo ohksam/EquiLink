@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: SEE LICENSE IN LICENSE
 pragma solidity ^0.8.18;
 
-import {PriceConverter} from "./PriceConverter.sol";
+import {PriceConverter, InvalidPrice, RoundIncomplete, StalePrice} from "./PriceConverter.sol";
 
 contract EquiLink {
     using PriceConverter for address;
