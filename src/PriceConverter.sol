@@ -1,4 +1,5 @@
-// SPDX-License-Identifier: SEE LICENSE IN LICENSE
+// SPDX-License-Identifier: MIT
+
 pragma solidity ^0.8.18;
 
 // import {AggregatorV3Interface} from "@chainlink/contracts/src/v0.8/shared/interfaces/AggregatorV3Interface.sol";
@@ -15,7 +16,7 @@ library PriceConverter {
         if (price <= 0) revert InvalidPrice();
         if (updatedAt == 0) revert RoundIncomplete();
         if (block.timestamp - updatedAt >= 1 hours) revert StalePrice();
-        
+
         return uint256(price) * 1e10;
     }
 }
