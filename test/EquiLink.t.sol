@@ -4,7 +4,7 @@ pragma solidity ^0.8.18;
 
 import "forge-std/Test.sol";
 import {EquiLink} from "../src/EquiLink.sol";
-import {PriceConverter} from "../src/PriceConverter.sol";
+import {PriceConverter, StalePrice, InvalidPrice} from "../src/PriceConverter.sol";
 import {MockV3Aggregator} from "../lib/chainlink-brownie-contracts/contracts/src/v0.8/tests/MockV3Aggregator.sol";
 
 contract EquiLinkTest is Test {
@@ -69,7 +69,7 @@ contract EquiLinkTest is Test {
     // safety check
     function test_RevertIfPriceZero() public {
         mockEthFeed.updateAnswer(0);
-        vm.expectRevert("Invalid price");
+        vm.expectRevert(InvalidPrice.selector);
         PriceConverter.getPrice(address(mockEthFeed));
     }
 
@@ -82,7 +82,7 @@ contract EquiLinkTest is Test {
             block.timestamp - 2 hours,
             block.timestamp - 2 hours
         );
-        vm.expectRevert("Stale price");
+        vm.expectRevert(StalePrice.selector);
         PriceConverter.getPrice(address(mockEthFeed));
     }
 

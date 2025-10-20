@@ -46,7 +46,7 @@ contract EquiLink {
 
         uint256 thresholdPrice = (rule.entryPrice * (100 - rule.thresholdPercentDrop)) / 100;
 
-        if (currentPrice < thresholdPrice) {
+        if (currentPrice <= thresholdPrice) {
             uint256 tokensToSell = (tokenAmount * rule.percentToSell) / 100;
             uint256 tokensKept = (tokenAmount - tokensToSell);
 
