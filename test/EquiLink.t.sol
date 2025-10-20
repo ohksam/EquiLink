@@ -7,6 +7,9 @@ import {EquiLink} from "../src/EquiLink.sol";
 import {PriceConverter, StalePrice, InvalidPrice} from "../src/PriceConverter.sol";
 import {MockV3Aggregator} from "../lib/chainlink-brownie-contracts/contracts/src/v0.8/tests/MockV3Aggregator.sol";
 
+// for debugging
+import "forge-std/console.sol";
+
 contract EquiLinkTest is Test {
     using PriceConverter for address;
 
@@ -68,28 +71,31 @@ contract EquiLinkTest is Test {
 
     // safety check
     function test_RevertIfPriceZero() public {
-        
-        mockEthFeed.updateRoundData(
-            1,
-            0,
-            block.timestamp,
-            block.timestamp
-        );
+
+        uint256 base = block.timestamp;
+        mockEthFeed.updateRoundData(1, 0, base, base);
+
         vm.expectRevert(InvalidPrice.selector);
-        PriceConverter.getPrice(address(mockEthFeed));
+        // PriceConverter.getPrice(address(mockEthFeed));
+        this.callGetPrice(address(mockEthFeed));
     }
 
     // price freshness check
     function test_RevertIfStalePrice() public {
+
+        uint256 base = block.timestamp;
+        // ***for debugging*** REMOVE BEFORE DEPLOY
+        // console.log("HEYYYYYY base is ", base);
+        uint256 past = base - 2 hours;
         // Data params (roundId, answer, startedAt, updatedAt)
-        mockEthFeed.updateRoundData(
-            1,
-            2000e8,
-            block.timestamp - 3 hours,
-            block.timestamp - 2 hours
-        );
+        mockEthFeed.updateRoundData(1, 2000e8, past, past);
+        // sets timestamp
+        vm.warp(past + 1 hours + 1);       
+        
+
         vm.expectRevert(StalePrice.selector);
-        PriceConverter.getPrice(address(mockEthFeed));
+        // PriceConverter.getPrice(address(mockEthFeed));
+        this.callGetPrice(address(mockEthFeed));
     }
 
     // 3. Tests for simulateRebalance function
@@ -171,5 +177,10 @@ contract EquiLinkTest is Test {
         (uint256 original, uint256 simulated) = equiLink.simulateRebalance(portfolio, ethRule, btcRule, linkRule);
 
         assertGt(simulated, original);
+    }
+
+    // helper function for PriceZero and StalePrice tests
+    function callGetPrice(address feed) public view returns (uint256) {
+        return PriceConverter.getPrice(feed);
     }
 }
