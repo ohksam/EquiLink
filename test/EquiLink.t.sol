@@ -82,15 +82,11 @@ contract EquiLinkTest is Test {
 
     // price freshness check
     function test_RevertIfStalePrice() public {
+        uint256 mockUpdate = 1000;
+        uint256 mockStart = 900;
 
-        uint256 base = block.timestamp;
-        // ***for debugging*** REMOVE BEFORE DEPLOY
-        // console.log("HEYYYYYY base is ", base);
-        uint256 past = base - 2 hours;
-        // Data params (roundId, answer, startedAt, updatedAt)
-        mockEthFeed.updateRoundData(1, 2000e8, past, past);
-        // sets timestamp
-        vm.warp(past + 1 hours + 1);       
+        mockEthFeed.updateRoundData(1, 2000e8, mockStart, mockUpdate);
+        vm.warp(mockUpdate + 3601); // moves time to *just* over 1 hour later to trigger staleness
         
 
         vm.expectRevert(StalePrice.selector);
