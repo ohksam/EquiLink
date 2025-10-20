@@ -35,7 +35,7 @@ contract EquiLink {
         originalUsdValue = (
             (portfolio.ethAmount * ethUsdFeed.getPrice()) / 1e18 +
             (portfolio.btcAmount * btcUsdFeed.getPrice()) / 1e18 +
-            (portfolio.linkAmount * linkUsdFeed.getPrice())
+            (portfolio.linkAmount * linkUsdFeed.getPrice()) / 1e18
         );
 
         simulatedUsdValue = newEthUsd + newBtcUsd + newLinkUsd;
