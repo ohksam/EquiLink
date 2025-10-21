@@ -8,7 +8,7 @@ import {PriceConverter, StalePrice, InvalidPrice} from "../src/PriceConverter.so
 import {MockV3Aggregator} from "../lib/chainlink-brownie-contracts/contracts/src/v0.8/tests/MockV3Aggregator.sol";
 
 // for debugging
-import "forge-std/console.sol";
+// import "forge-std/console.sol";
 
 contract EquiLinkTest is Test {
     using PriceConverter for address;
@@ -53,8 +53,8 @@ contract EquiLinkTest is Test {
 
 // ******SHORTEN YOUR TEST NAMES*******
     // 1. Test for EquiLink constructor
-    // Not crucial tbh. Just making sure addresses match.
 
+    // Not crucial tbh. Just making sure addresses match.
     function test_ConstructorSetsFeeds() public {
         assertEq(equiLink.ethUsdFeed(), address(mockEthFeed));
         assertEq(equiLink.btcUsdFeed(), address(mockBtcFeed));
