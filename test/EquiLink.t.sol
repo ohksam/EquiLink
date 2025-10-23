@@ -98,8 +98,8 @@ contract EquiLinkTest is Test {
 
     // Just making sure that our values don't magically change when going in/out of rebalance without any rules
     function test_SimulateWithoutRules() public {
-        (uint256 original, uint256 simulated) = equiLink.simulateRebalance(portfolio, emptyRule, emptyRule, emptyRule);
-        assertEq(original, simulated);
+        (, , , , , , uint256 hodl, uint256 simulated) = equiLink.simulateRebalance(portfolio, emptyRule, emptyRule, emptyRule);
+        assertEq(hodl, simulated);
     }
 
     // testing rebalance trigger on drop
@@ -114,10 +114,10 @@ contract EquiLinkTest is Test {
             percentToSell: 50
         });
 
-        (uint256 original, uint256 simulated) = equiLink.simulateRebalance(portfolio, ethRule, emptyRule, emptyRule);
+        (, , , , , , uint256 hodl, uint256 simulated) = equiLink.simulateRebalance(portfolio, ethRule, emptyRule, emptyRule);
 
         // simulated value should be higher as it mitigated losses
-        assertGt(simulated, original);
+        assertGt(simulated, hodl);
     }
 
     // testing *no* trigger on drop
@@ -131,10 +131,10 @@ contract EquiLinkTest is Test {
             percentToSell: 50
         });
 
-        (uint256 original, uint256 simulated) = equiLink.simulateRebalance(portfolio, ethRule, emptyRule, emptyRule);
+        (, , , , , , uint256 hodl, uint256 simulated) = equiLink.simulateRebalance(portfolio, ethRule, emptyRule, emptyRule);
 
         // nothing should change since the transfer threshold is not hit
-        assertEq(simulated, original);
+        assertEq(simulated, hodl);
     }
 
     // testing trigger on exact % drop
@@ -142,21 +142,21 @@ contract EquiLinkTest is Test {
         // exactly 10% drop from 10
         mockLinkFeed.updateAnswer(9e8); 
         EquiLink.Rule memory linkRule = EquiLink.Rule(10e18, 10, 50);
-        (uint256 original, uint256 simulated) = equiLink.simulateRebalance(portfolio, emptyRule, emptyRule, linkRule);
-        assertGe(simulated, original);
+        (, , , , , , uint256 hodl, uint256 simulated) = equiLink.simulateRebalance(portfolio, emptyRule, emptyRule, linkRule);
+        assertGe(simulated, hodl);
     }
 
     // 4. Multi-asset aggregation
     // Honestly, not super necessary. Similar to first test in #3 but also checking addition accuracy/preservation.
     function test_ValueAggregation() public {
-        (uint256 original, uint256 simulated) = equiLink.simulateRebalance(portfolio, emptyRule, emptyRule, emptyRule);
-        assertEq(original, simulated);
+        (, , , , , , uint256 hodl, uint256 simulated) = equiLink.simulateRebalance(portfolio, emptyRule, emptyRule, emptyRule);
+        assertEq(hodl, simulated);
 
         uint256 expected = ((1 ether * 2000e18) / 1e18) +
             ((1 ether * 40000e18) / 1e18) +
             ((1 ether * 10e18) / 1e18);
 
-        assertEq(original, expected);
+        assertEq(hodl, expected);
     }
 
     // 5. Mixed rule test
@@ -170,9 +170,9 @@ contract EquiLinkTest is Test {
         EquiLink.Rule memory btcRule = EquiLink.Rule(40000e18, 10, 50);
         EquiLink.Rule memory linkRule = EquiLink.Rule(10e18, 10, 50);
 
-        (uint256 original, uint256 simulated) = equiLink.simulateRebalance(portfolio, ethRule, btcRule, linkRule);
+        (, , , , , , uint256 hodl, uint256 simulated) = equiLink.simulateRebalance(portfolio, ethRule, btcRule, linkRule);
 
-        assertGt(simulated, original);
+        assertGt(simulated, hodl);
     }
 
     // helper function for PriceZero and StalePrice tests
