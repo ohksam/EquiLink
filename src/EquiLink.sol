@@ -21,26 +21,43 @@ contract EquiLink {
     struct Portfolio {uint256 ethAmount; uint256 btcAmount; uint256 linkAmount;}
 
     struct Rule {uint256 entryPrice; uint256 thresholdPercentDrop; uint256 percentToSell;}
+    
+    // output: 
+    // (newEthUsd, newBtcUsd, newLinkUsd, originalEthUsd, originalBtcUsd, originalLinkUsd, originalTotalUsd, simulatedTotalUsd)
 
     function simulateRebalance(
         Portfolio calldata portfolio,
         Rule calldata ethRule,
         Rule calldata btcRule,
         Rule calldata linkRule
-    ) external view returns (uint256 originalUsdValue, uint256 simulatedUsdValue) {
+    ) external view returns (
+        uint256 newEthUsd,
+        uint256 newBtcUsd,
+        uint256 newLinkUsd,
+        uint256 hodlEthUsd,
+        uint256 hodlBtcUsd,
+        uint256 hodlLinkUsd,
+        uint256 hodlUsdValue, 
+        uint256 simulatedUsdValue
+        ) {
+        
+        // calculate dollar value of each token amount after simulated drops
         uint256 newEthUsd = _applyRule(portfolio.ethAmount, ethRule, ethUsdFeed.getPrice());
         uint256 newBtcUsd = _applyRule(portfolio.btcAmount, btcRule, btcUsdFeed.getPrice());
         uint256 newLinkUsd = _applyRule(portfolio.linkAmount, linkRule, linkUsdFeed.getPrice());
 
-        originalUsdValue = (
-            (portfolio.ethAmount * ethUsdFeed.getPrice()) / 1e18 +
-            (portfolio.btcAmount * btcUsdFeed.getPrice()) / 1e18 +
-            (portfolio.linkAmount * linkUsdFeed.getPrice()) / 1e18
-        );
-
+        // calculate dollar value of *WHAT IS THIS? HODL??* token amounts
+        uint256 hodlEthUsd = (portfolio.ethAmount * ethUsdFeed.getPrice()) / 1e18;
+        uint256 hodlBtcUsd = (portfolio.btcAmount * btcUsdFeed.getPrice()) / 1e18;
+        uint256 hodlLinkUsd = (portfolio.linkAmount * linkUsdFeed.getPrice()) / 1e18;
+        
+        // calculate totals (USD) of HODL investment and simulated amount
+        hodlUsdValue = hodlEthUsd + hodlBtcUsd + hodlLinkUsd;
         simulatedUsdValue = newEthUsd + newBtcUsd + newLinkUsd;
     }
 
+
+    // helper
     function _applyRule(uint256 tokenAmount, Rule memory rule, uint256 currentPrice) internal pure returns (uint256) {
         if (rule.entryPrice == 0) return (tokenAmount * currentPrice) / 1e18;
 
