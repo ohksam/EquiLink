@@ -1,8 +1,8 @@
 import { BrowserRouter, Routes, Route } from "react-router";
-import Sidebar from "./Sidebar";
-import Home from "./Home";
-import Simulation from "./Simulation";
-import Dashboard from "./Dashboard";
+import Sidebar from "./components/Sidebar";
+import Home from "./components/Home";
+import Simulation from "./components/Simulation";
+import Dashboard from "./components/Dashboard";
 
 function Layout() {
   return (
