@@ -23,7 +23,7 @@ contract EquiLink {
     struct Rule {uint256 entryPrice; uint256 thresholdPercentDrop; uint256 percentToSell;}
     
     // output: 
-    // (newEthUsd, newBtcUsd, newLinkUsd, originalEthUsd, originalBtcUsd, originalLinkUsd, originalTotalUsd, simulatedTotalUsd)
+    // (newEthUsd, newBtcUsd, newLinkUsd, holdEthUsd, holdBtcUsd, holdLinkUsd, holdTotalUsd, simulatedTotalUsd)
 
     function simulateRebalance(
         Portfolio calldata portfolio,
@@ -41,17 +41,17 @@ contract EquiLink {
         uint256 simulatedUsdValue
         ) {
         
-        // calculate dollar value of each token amount after simulated drops
+        // calculate dollar value of each token amount after stop-loss
         uint256 newEthUsd = _applyRule(portfolio.ethAmount, ethRule, ethUsdFeed.getPrice());
-        uint256 newBtcUsd = _applyRule(portfolio.btcAmount, btcRule, btcUsdFeed.getPrice());
+        uint256 newBtcUsd = _applyRule(portfolio.btcAmount, btcRule, btcUsdFeed.getPrice()); 
         uint256 newLinkUsd = _applyRule(portfolio.linkAmount, linkRule, linkUsdFeed.getPrice());
 
-        // calculate dollar value of *WHAT IS THIS? HODL??* token amounts
+        // calculate HODL value
         uint256 hodlEthUsd = (portfolio.ethAmount * ethUsdFeed.getPrice()) / 1e18;
         uint256 hodlBtcUsd = (portfolio.btcAmount * btcUsdFeed.getPrice()) / 1e18;
         uint256 hodlLinkUsd = (portfolio.linkAmount * linkUsdFeed.getPrice()) / 1e18;
         
-        // calculate totals (USD) of HODL investment and simulated amount
+        // totals
         hodlUsdValue = hodlEthUsd + hodlBtcUsd + hodlLinkUsd;
         simulatedUsdValue = newEthUsd + newBtcUsd + newLinkUsd;
     }
