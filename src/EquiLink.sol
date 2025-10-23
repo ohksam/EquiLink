@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.18;
 
-import {PriceConverter, InvalidPrice, RoundIncomplete, StalePrice} from "./PriceConverter.sol";
+import { PriceConverter } from "./PriceConverter.sol";
 
 contract EquiLink {
     using PriceConverter for address;
