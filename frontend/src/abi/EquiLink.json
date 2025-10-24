@@ -1,0 +1,148 @@
+[
+  {
+    "type": "constructor",
+    "inputs": [
+      { "name": "_ethUsdFeed", "type": "address", "internalType": "address" },
+      { "name": "_btcUsdFeed", "type": "address", "internalType": "address" },
+      { "name": "_linkUsdFeed", "type": "address", "internalType": "address" }
+    ],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "btcUsdFeed",
+    "inputs": [],
+    "outputs": [{ "name": "", "type": "address", "internalType": "address" }],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "ethUsdFeed",
+    "inputs": [],
+    "outputs": [{ "name": "", "type": "address", "internalType": "address" }],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "linkUsdFeed",
+    "inputs": [],
+    "outputs": [{ "name": "", "type": "address", "internalType": "address" }],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "simulateRebalance",
+    "inputs": [
+      {
+        "name": "portfolio",
+        "type": "tuple",
+        "internalType": "struct EquiLink.Portfolio",
+        "components": [
+          {
+            "name": "ethAmount",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "btcAmount",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "linkAmount",
+            "type": "uint256",
+            "internalType": "uint256"
+          }
+        ]
+      },
+      {
+        "name": "ethRule",
+        "type": "tuple",
+        "internalType": "struct EquiLink.Rule",
+        "components": [
+          {
+            "name": "entryPrice",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "thresholdPercentDrop",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "percentToSell",
+            "type": "uint256",
+            "internalType": "uint256"
+          }
+        ]
+      },
+      {
+        "name": "btcRule",
+        "type": "tuple",
+        "internalType": "struct EquiLink.Rule",
+        "components": [
+          {
+            "name": "entryPrice",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "thresholdPercentDrop",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "percentToSell",
+            "type": "uint256",
+            "internalType": "uint256"
+          }
+        ]
+      },
+      {
+        "name": "linkRule",
+        "type": "tuple",
+        "internalType": "struct EquiLink.Rule",
+        "components": [
+          {
+            "name": "entryPrice",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "thresholdPercentDrop",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "percentToSell",
+            "type": "uint256",
+            "internalType": "uint256"
+          }
+        ]
+      }
+    ],
+    "outputs": [
+      { "name": "newEthUsd", "type": "uint256", "internalType": "uint256" },
+      { "name": "newBtcUsd", "type": "uint256", "internalType": "uint256" },
+      { "name": "newLinkUsd", "type": "uint256", "internalType": "uint256" },
+      { "name": "hodlEthUsd", "type": "uint256", "internalType": "uint256" },
+      { "name": "hodlBtcUsd", "type": "uint256", "internalType": "uint256" },
+      { "name": "hodlLinkUsd", "type": "uint256", "internalType": "uint256" },
+      {
+        "name": "hodlUsdValue",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "simulatedUsdValue",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  { "type": "error", "name": "InvalidPrice", "inputs": [] },
+  { "type": "error", "name": "RoundIncomplete", "inputs": [] },
+  { "type": "error", "name": "StalePrice", "inputs": [] }
+]

@@ -1,8 +1,15 @@
 import { BrowserRouter, Routes, Route } from "react-router";
+import { config } from "./config";
+import { WagmiProvider } from "wagmi";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+
+// components
 import Sidebar from "./components/Sidebar";
 import Home from "./components/Home";
 import Simulation from "./components/Simulation";
 import Dashboard from "./components/Dashboard";
+
+const queryClient = new QueryClient();
 
 function Layout() {
   return (
@@ -23,9 +30,13 @@ function Layout() {
 
 function App() {
   return (
-    <BrowserRouter>
-      <Layout />
-    </BrowserRouter>
+    <WagmiProvider config={config}>
+      <QueryClientProvider client={queryClient}>
+        <BrowserRouter>
+          <Layout />
+        </BrowserRouter>
+      </QueryClientProvider>
+    </WagmiProvider>
   );
 }
 
