@@ -1,7 +1,10 @@
 import { useState, useRef } from "react";
 import type { ChangeEvent } from "react";
+import { useReadContract } from "wagmi";
 import ResultsCard from "./ResultsCard";
 import type { SimulationResult } from "./ResultsCard";
+import { EQUILINK_ADDRESS } from "../constants/contract";
+import EquiLinkAbi from "../abi/EquiLink.json";
 
 type Asset = "eth" | "btc" | "link";
 
@@ -30,7 +33,9 @@ const initialRules = { eth: { ...initialRule }, btc: { ...initialRule }, link: {
 const SimulationForm = () => {
     const [portfolio, setPortfolio] = useState<Portfolio>(initialPortfolio);
     const [rules, setRules] = useState<Rules>(initialRules);
+    const [trigger, setTrigger] = useState(0);
     const [result, setResult] = useState<SimulationResult | null>(null);
+    const resultsRef = useRef<HTMLDivElement | null>(null);
 
     const handlePortfolioChange = (e: ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
@@ -41,35 +46,100 @@ const SimulationForm = () => {
         const { name, value } = e.target;
         setRules((prev) => ({
             ...prev,
-            [asset]: { ...prev[asset], [name]: value }
+            [asset]: { ...prev[asset], [name]: value },
         }));
     };
 
-    const resultsRef = useRef<HTMLDivElement | null>(null);
-    // Dummy simulation for now - replace with contract call
+    // Demo button fills in realistic defaults
+    const handleDemo = () => {
+        setPortfolio({ eth: "1", btc: "1", link: "1" });
+        setRules({
+            eth: { entryPrice: "4100", thresholdPercentDrop: "20", percentToSell: "50" },
+            btc: { entryPrice: "115000", thresholdPercentDrop: "10", percentToSell: "40" },
+            link: { entryPrice: "18.5", thresholdPercentDrop: "15", percentToSell: "30" },
+        });
+    };
+
+    const portfolioStruct = {
+        ethAmount: BigInt(Math.floor(Number(portfolio.eth) * 1e18) || 0),
+        btcAmount: BigInt(Math.floor(Number(portfolio.btc) * 1e18) || 0),
+        linkAmount: BigInt(Math.floor(Number(portfolio.link) * 1e18) || 0),
+    };
+
+    const makeRule = (r: Rule) => ({
+        entryPrice: BigInt(Math.floor(Number(r.entryPrice) * 1e18) || 0),
+        thresholdPercentDrop: BigInt(Number(r.thresholdPercentDrop) || 0),
+        percentToSell: BigInt(Number(r.percentToSell) || 0),
+    });
+
+    const { data, isFetching, error } = useReadContract({
+        address: EQUILINK_ADDRESS,
+        abi: EquiLinkAbi,
+        functionName: "simulateRebalance",
+        args: [
+            portfolioStruct,
+            makeRule(rules.eth),
+            makeRule(rules.btc),
+            makeRule(rules.link),
+        ],
+        query: { enabled: trigger > 0 },
+    });
+
     const handleSimulate = () => {
+        setResult(null); // clear old result
+        setTrigger((prev) => prev + 1);
+    };
+
+    const anyFieldFilled =
+        Object.values(portfolio).some((val) => val.trim() !== "") ||
+        Object.values(rules).some((rule) =>
+            Object.values(rule).some((val) => val.trim() !== "")
+        );
+
+    // Update results when data arrives
+    if (data && !result) {
+        const [
+            newEthUsd,
+            newBtcUsd,
+            newLinkUsd,
+            hodlEthUsd,
+            hodlBtcUsd,
+            hodlLinkUsd,
+            hodlUsdValue,
+            simulatedUsdValue,
+        ] = data as bigint[];
+
         setResult({
-            simulatedEthUsd: 1700,
-            simulatedBtcUsd: 1800,
-            simulatedLinkUsd: 900,
-            hodlEthUsd: 1600,
-            hodlBtcUsd: 1700,
-            hodlLinkUsd: 900,
-            hodlUsdValue: 4200,
-            simulatedUsdValue: 4400,
+            simulatedEthUsd: Number(newEthUsd) / 1e18,
+            simulatedBtcUsd: Number(newBtcUsd) / 1e18,
+            simulatedLinkUsd: Number(newLinkUsd) / 1e18,
+            hodlEthUsd: Number(hodlEthUsd) / 1e18,
+            hodlBtcUsd: Number(hodlBtcUsd) / 1e18,
+            hodlLinkUsd: Number(hodlLinkUsd) / 1e18,
+            hodlUsdValue: Number(hodlUsdValue) / 1e18,
+            simulatedUsdValue: Number(simulatedUsdValue) / 1e18,
         });
 
-        setTimeout(() => {
-            resultsRef.current?.scrollIntoView({ behavior: "smooth" });
-        }, 100); 
-    };
+        setTimeout(() => resultsRef.current?.scrollIntoView({ behavior: "smooth" }), 100);
+    }
 
     return (
         <div className="bg-teal-50 rounded-xl shadow p-6 mb-8 flex flex-col gap-6 w-full">
-            <h2 className="text-3xl font-bold mb-1">Simulate Portfolio Rebalance</h2>
+            <div className="flex items-center justify-between">
+                <h2 className="text-3xl font-bold">Simulate Portfolio Rebalance</h2>
+                <button
+                    onClick={handleDemo}
+                    className="text-sm font-semibold text-cyan-700 border border-cyan-700 px-3 py-1 rounded-lg hover:bg-cyan-100 transition"
+                >
+                    Demo
+                </button>
+            </div>
+
             <p className="mb-4 text-gray-600">
-                Enter your balances and stop-loss rules for each asset to simulate your strategy.
+                Enter your balances and stop-loss rules for each asset to simulate your strategy,
+                or click <span className="font-semibold">Demo</span> to auto-fill sample data.
             </p>
+
             {["eth", "btc", "link"].map((asset) => (
                 <div key={asset} className="bg-white rounded-lg p-4 shadow flex flex-col gap-2 mb-2">
                     <div className="font-semibold text-lg uppercase text-teal-700 mb-1">{asset}</div>
@@ -81,55 +151,56 @@ const SimulationForm = () => {
                                 name={asset}
                                 value={portfolio[asset as Asset]}
                                 onChange={handlePortfolioChange}
-                                placeholder={`e.g. 1.5`}
+                                placeholder="e.g. 1.5"
                                 className="mt-1 border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-200"
                             />
                         </label>
-                        <label className="flex flex-col text-sm font-medium">
-                            Entry Price (USD)
-                            <input
-                                type="number"
-                                name="entryPrice"
-                                value={rules[asset as Asset].entryPrice}
-                                onChange={(e) => handleRuleChange(asset as Asset, e)}
-                                placeholder="e.g. 2500"
-                                className="mt-1 border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-200"
-                            />
-                        </label>
-                        <label className="flex flex-col text-sm font-medium">
-                            % Drop to Trigger
-                            <input
-                                type="number"
-                                name="thresholdPercentDrop"
-                                value={rules[asset as Asset].thresholdPercentDrop}
-                                onChange={(e) => handleRuleChange(asset as Asset, e)}
-                                placeholder="e.g. 15"
-                                className="mt-1 border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-200"
-                            />
-                        </label>
-                        <label className="flex flex-col text-sm font-medium">
-                            % to Sell
-                            <input
-                                type="number"
-                                name="percentToSell"
-                                value={rules[asset as Asset].percentToSell}
-                                onChange={(e) => handleRuleChange(asset as Asset, e)}
-                                placeholder="e.g. 20"
-                                className="mt-1 border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-200"
-                            />
-                        </label>
+
+                        {["entryPrice", "thresholdPercentDrop", "percentToSell"].map((field) => (
+                            <label key={field} className="flex flex-col text-sm font-medium">
+                                {field === "entryPrice"
+                                    ? "Entry Price (USD)"
+                                    : field === "thresholdPercentDrop"
+                                        ? "% Drop to Trigger"
+                                        : "% to Sell"}
+                                <input
+                                    type="number"
+                                    name={field}
+                                    value={rules[asset as Asset][field as keyof Rule]}
+                                    onChange={(e) => handleRuleChange(asset as Asset, e)}
+                                    placeholder={
+                                        field === "entryPrice"
+                                            ? "e.g. 2500"
+                                            : field === "thresholdPercentDrop"
+                                                ? "e.g. 15"
+                                                : "e.g. 20"
+                                    }
+                                    className="mt-1 border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-200"
+                                />
+                            </label>
+                        ))}
                     </div>
                 </div>
             ))}
 
             <button
-                className="bg-cyan-500 text-white font-bold px-6 py-2 rounded-xl shadow hover:bg-cyan-600 transition"
+                className={`bg-cyan-500 text-white font-bold px-6 py-2 rounded-xl shadow transition ${!anyFieldFilled || isFetching
+                    ? "opacity-60 cursor-not-allowed"
+                    : "hover:bg-cyan-600"
+                    }`}
                 onClick={handleSimulate}
+                disabled={!anyFieldFilled || isFetching}
             >
-                Simulate Rebalance
+                {isFetching ? "Simulating..." : "Simulate Rebalance"}
             </button>
 
-            {result && (<div ref={resultsRef}><ResultsCard result={result} /></div>)}
+            {error && <p className="text-red-500 mt-2">Error: {error.message}</p>}
+
+            {result && (
+                <div ref={resultsRef}>
+                    <ResultsCard result={result} />
+                </div>
+            )}
         </div>
     );
 };
