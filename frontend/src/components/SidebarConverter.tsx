@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { usePriceData } from "../context/PriceContext"; // update path as needed
+import { usePriceData } from "../context/PriceContext";
 import type { ChangeEvent } from "react";
 
 const assetOptions = [
