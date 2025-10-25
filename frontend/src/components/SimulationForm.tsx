@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import type { ChangeEvent } from "react";
 import { usePriceData } from "../context/PriceContext";
 import { useReadContract } from "wagmi";
@@ -8,16 +8,16 @@ import { EQUILINK_ADDRESS } from "../constants/contract";
 import EquiLinkAbi from "../abi/EquiLink.json";
 
 type Asset = "eth" | "btc" | "link";
-type Portfolio = { eth: string; btc: string; link: string; };
-type Rule = { entryPrice: string; thresholdPercentDrop: string; percentToSell: string; };
-type Rules = { eth: Rule; btc: Rule; link: Rule; };
+type Portfolio = { eth: string; btc: string; link: string };
+type Rule = { entryPrice: string; thresholdPercentDrop: string; percentToSell: string };
+type Rules = { eth: Rule; btc: Rule; link: Rule };
 
 const initialPortfolio = { eth: "", btc: "", link: "" };
 const initialRule = { entryPrice: "", thresholdPercentDrop: "", percentToSell: "" };
 const initialRules = { eth: { ...initialRule }, btc: { ...initialRule }, link: { ...initialRule } };
 
 const forceDropEntry = (current: number, threshold: number) => {
-    const buffer = 0.1 + Math.random(); // 10%+ buffer, plus randomization to allow re-demo
+    const buffer = 0.1 + Math.random();
     return (current * (1 + threshold / 100 + buffer)).toFixed(2);
 };
 
@@ -25,8 +25,8 @@ const SimulationForm = () => {
     const [portfolio, setPortfolio] = useState<Portfolio>(initialPortfolio);
     const [rules, setRules] = useState<Rules>(initialRules);
     const [result, setResult] = useState<SimulationResult | null>(null);
+    const [isSimulating, setIsSimulating] = useState(false);
     const resultsRef = useRef<HTMLDivElement | null>(null);
-
     const { chainlink } = usePriceData();
 
     const handlePortfolioChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -75,12 +75,7 @@ const SimulationForm = () => {
         percentToSell: BigInt(Number(r.percentToSell) || 0),
     });
 
-    const {
-        data,
-        error,
-        isPending,
-        refetch,
-    } = useReadContract({
+    const { data, error, isLoading, refetch } = useReadContract({
         address: EQUILINK_ADDRESS,
         abi: EquiLinkAbi,
         functionName: "simulateRebalance",
@@ -90,12 +85,37 @@ const SimulationForm = () => {
             makeRule(rules.btc),
             makeRule(rules.link),
         ],
-        query: { enabled: false }, // only fetch when refetch is called
+        query: { enabled: false },
     });
 
-    const handleSimulate = () => {
-        setResult(null); // clear old result
-        refetch();
+    const handleSimulate = async () => {
+        setIsSimulating(true);
+        setResult(null);
+        const res = await refetch();
+        if (res.data) {
+            const [
+                newEthUsd,
+                newBtcUsd,
+                newLinkUsd,
+                hodlEthUsd,
+                hodlBtcUsd,
+                hodlLinkUsd,
+                hodlUsdValue,
+                simulatedUsdValue,
+            ] = res.data as bigint[];
+            setResult({
+                simulatedEthUsd: Number(newEthUsd) / 1e18,
+                simulatedBtcUsd: Number(newBtcUsd) / 1e18,
+                simulatedLinkUsd: Number(newLinkUsd) / 1e18,
+                hodlEthUsd: Number(hodlEthUsd) / 1e18,
+                hodlBtcUsd: Number(hodlBtcUsd) / 1e18,
+                hodlLinkUsd: Number(hodlLinkUsd) / 1e18,
+                hodlUsdValue: Number(hodlUsdValue) / 1e18,
+                simulatedUsdValue: Number(simulatedUsdValue) / 1e18,
+            });
+            setTimeout(() => resultsRef.current?.scrollIntoView({ behavior: "smooth" }), 100);
+        }
+        setIsSimulating(false);
     };
 
     const anyFieldFilled =
@@ -103,33 +123,6 @@ const SimulationForm = () => {
         Object.values(rules).some((rule) =>
             Object.values(rule).some((val) => val.trim() !== "")
         );
-
-    // update results when data arrives
-    if (data && !result) {
-        const [
-            newEthUsd,
-            newBtcUsd,
-            newLinkUsd,
-            hodlEthUsd,
-            hodlBtcUsd,
-            hodlLinkUsd,
-            hodlUsdValue,
-            simulatedUsdValue,
-        ] = data as bigint[];
-
-        setResult({
-            simulatedEthUsd: Number(newEthUsd) / 1e18,
-            simulatedBtcUsd: Number(newBtcUsd) / 1e18,
-            simulatedLinkUsd: Number(newLinkUsd) / 1e18,
-            hodlEthUsd: Number(hodlEthUsd) / 1e18,
-            hodlBtcUsd: Number(hodlBtcUsd) / 1e18,
-            hodlLinkUsd: Number(hodlLinkUsd) / 1e18,
-            hodlUsdValue: Number(hodlUsdValue) / 1e18,
-            simulatedUsdValue: Number(simulatedUsdValue) / 1e18,
-        });
-
-        setTimeout(() => resultsRef.current?.scrollIntoView({ behavior: "smooth" }), 100);
-    }
 
     return (
         <div className="bg-teal-50 rounded-xl shadow p-6 mb-8 flex flex-col gap-6 w-full">
@@ -160,7 +153,7 @@ const SimulationForm = () => {
                                 value={portfolio[asset as Asset]}
                                 onChange={handlePortfolioChange}
                                 placeholder="e.g. 1.5"
-                                className="mt-1 border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-200"
+                                className="no-arrows mt-1 border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-200"
                             />
                         </label>
 
@@ -192,14 +185,12 @@ const SimulationForm = () => {
             ))}
 
             <button
-                className={`bg-cyan-500 text-white font-bold px-6 py-2 rounded-xl shadow transition ${!anyFieldFilled || isPending
-                    ? "opacity-60 cursor-not-allowed"
-                    : "hover:bg-cyan-600"
+                className={`bg-cyan-500 text-white font-bold px-6 py-2 rounded-xl shadow transition ${!anyFieldFilled || isSimulating ? "opacity-60 cursor-not-allowed" : "hover:bg-cyan-600"
                     }`}
                 onClick={handleSimulate}
-                disabled={!anyFieldFilled || isPending}
+                disabled={!anyFieldFilled || isSimulating}
             >
-                {isPending ? "Simulating..." : "Simulate Rebalance"}
+                {isSimulating ? "Simulating..." : "Simulate Rebalance"}
             </button>
 
             {error && <p className="text-red-500 mt-2">Error: {error.message}</p>}

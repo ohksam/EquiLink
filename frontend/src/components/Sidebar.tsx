@@ -41,7 +41,7 @@ const Sidebar = () => {
             </li>
             <li>
               <NavLink to="/about" className={linkClasses}>
-                <span className="inline-block mr-3">📈</span>
+                <span className="inline-block mr-3">ℹ️</span>
                 About
               </NavLink>
             </li>
