@@ -18,8 +18,9 @@ const SidebarConverter = () => {
     const [crypto, setCrypto] = useState("");
     const [lastEdited, setLastEdited] = useState<"usd" | "crypto">("usd");
 
-    const token = tokens.find(t => t.symbol === selected);
-    const price = typeof token?.price === "number" ? token.price : undefined;
+    const { chainlink } = usePriceData();
+    const price = chainlink[selected];
+
 
     const handleUsdChange = (e: ChangeEvent<HTMLInputElement>) => {
         const val = e.target.value;
