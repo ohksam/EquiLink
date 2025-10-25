@@ -5,8 +5,8 @@ const Sidebar = () => {
   // helper function to style active links
   const linkClasses = ({ isActive }: { isActive: boolean }) =>
     `flex items-center px-6 py-3 font-semibold rounded-r-3xl transition-colors ${isActive
-      ? "bg-teal-100 text-teal-900 shadow-md"
-      : "text-gray-600 hover:bg-teal-200 hover:text-teal-800"
+      ? "bg-teal-200 text-teal-900 shadow-md"
+      : "text-gray-600 hover:bg-teal-100 hover:text-teal-800"
     }`;
 
   return (

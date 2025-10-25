@@ -14,40 +14,30 @@ const Dashboard = () => {
                 <button
                     onClick={refresh}
                     disabled={loading}
-                    className={`px-4 py-2 rounded-lg font-medium shadow ${
-                        loading
-                            ? "bg-gray-300 text-gray-600 cursor-not-allowed"
-                            : "bg-gray-100 hover:bg-gray-200 text-gray-800"
-                    }`}
+                    className={`px-4 py-2 rounded-lg font-medium shadow ${loading
+                        ? "bg-gray-300 text-gray-600 cursor-not-allowed"
+                        : "bg-gray-100 hover:bg-gray-200 text-gray-800"
+                        }`}
                 >
                     {loading ? "Refreshing..." : "Refresh Prices"}
                 </button>
             </div>
 
-            <p className="text-gray-600">
-                Live price data from{" "}
-                <strong>
+            <p className="text-gray-600 text-sm leading-relaxed">
+                Live price data is sourced from{" "}
+                <a
+                    href="https://www.coingecko.com/en/api"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-semibold underline"
+                >
                     CoinGecko
-                </strong>. <br />
-                <span className="text-xs">
-                    Price data provided by{" "}
-                    <a
-                        href="https://www.coingecko.com/en/api"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="underline"
-                    >
-                        CoinGecko
-                    </a>
-                    .
+                </a>
+                .{" "}
+                <span className="italic text-gray-500">
+                    Simulation and Converter prices use Chainlink’s Sepolia testnet feeds for demonstration.
                 </span>
             </p>
-
-            {lastUpdated && (
-                <p className="text-sm text-gray-500">
-                    Last updated: {formatTime(lastUpdated)}
-                </p>
-            )}
 
             {/* Token grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
@@ -77,11 +67,10 @@ const Dashboard = () => {
                                             : "—"}
                                     </p>
                                     <p
-                                        className={`text-sm ${
-                                            token.change24h && token.change24h >= 0
-                                                ? "text-green-600"
-                                                : "text-red-500"
-                                        }`}
+                                        className={`text-sm ${token.change24h && token.change24h >= 0
+                                            ? "text-green-600"
+                                            : "text-red-500"
+                                            }`}
                                     >
                                         {token.change24h !== undefined
                                             ? `${token.change24h > 0 ? "+" : ""}${token.change24h.toFixed(2)}%`
@@ -99,6 +88,12 @@ const Dashboard = () => {
                     </div>
                 ))}
             </div>
+            
+            {lastUpdated && (
+                <p className="text-sm text-gray-500 mt-1">
+                    Last updated: {formatTime(lastUpdated)}
+                </p>
+            )}
         </div>
     );
 };
