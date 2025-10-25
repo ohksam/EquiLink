@@ -4,7 +4,7 @@ import { fetchCoinGeckoPrices } from "../utils/fetchCoinGecko";
 import { COINGECKO_TOKENS } from "../constants/tokens";
 import { useChainlinkPrices } from "../hooks/useChainlinkPrices";
 
-// Define your mainnet token type (CoinGecko)
+// Mainnet prices from CoinGecko
 type TokenDisplay = {
   symbol: string;
   name: string;
@@ -14,14 +14,13 @@ type TokenDisplay = {
   volume24h?: number;
 };
 
-// Define your Chainlink testnet prices type
+// Chainlink prices for simulation, pricecards, and converter/calculator
 type ChainlinkPrices = {
   ETH?: number;
   BTC?: number;
   LINK?: number;
 };
 
-// Update your context type to include both
 type PriceContextType = {
   tokens: TokenDisplay[];           // CoinGecko mainnet prices
   chainlink: ChainlinkPrices;       // Chainlink Sepolia prices
