@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { usePriceData } from "../context/PriceContext"; // update path as needed
+import type { ChangeEvent } from "react";
 
 const assetOptions = [
     { label: "ETH", value: "ETH" },
@@ -20,7 +21,7 @@ const SidebarConverter = () => {
     const token = tokens.find(t => t.symbol === selected);
     const price = typeof token?.price === "number" ? token.price : undefined;
 
-    const handleUsdChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleUsdChange = (e: ChangeEvent<HTMLInputElement>) => {
         const val = e.target.value;
         setUsd(val);
         setLastEdited("usd");
@@ -32,7 +33,7 @@ const SidebarConverter = () => {
         }
     };
 
-    const handleCryptoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleCryptoChange = (e: ChangeEvent<HTMLInputElement>) => {
         const val = e.target.value;
         setCrypto(val);
         setLastEdited("crypto");
@@ -44,7 +45,7 @@ const SidebarConverter = () => {
         }
     };
 
-    const handleSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const handleSelect = (e: ChangeEvent<HTMLSelectElement>) => {
         const next = e.target.value as "ETH" | "BTC" | "LINK";
         setSelected(next);
         const newToken = tokens.find(t => t.symbol === next);
