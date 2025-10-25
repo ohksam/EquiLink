@@ -1,7 +1,7 @@
+// useChainlinkPrices.ts
 import { useReadContract } from "wagmi";
 import { aggregatorV3InterfaceABI } from "../constants/chainlinkAbi";
 
-// sepolia feeds
 const FEEDS = {
   ETH: "0x694AA1769357215DE4FAC081bf1f309aDC325306",
   BTC: "0x1b44F3514812d835EB1BDB0acB33d3fA3351Ee43",
@@ -11,7 +11,6 @@ const FEEDS = {
 const CHAIN_ID = 11155111;
 
 export function useChainlinkPrices() {
-  // Single read per feed (could use multicall if you want later)
   const eth = useReadContract({
     address: FEEDS.ETH,
     abi: aggregatorV3InterfaceABI,
@@ -31,17 +30,19 @@ export function useChainlinkPrices() {
     chainId: CHAIN_ID,
   });
 
-  // Parse results (8 decimals for price)
-  const parsePrice = (data: any) =>
-    data && data.result && data.result.answer
-      ? Number(data.result.answer) / 1e8
+  // debugging
+//   console.log("ETH:", eth.data, "BTC:", btc.data, "LINK:", link.data);
+
+  const parsePrice = (result: any) =>
+    result && result[1] !== undefined
+      ? Number(result[1]) / 1e8
       : undefined;
 
   return {
     prices: {
-      ETH: parsePrice(eth),
-      BTC: parsePrice(btc),
-      LINK: parsePrice(link),
+      ETH: parsePrice(eth.data),
+      BTC: parsePrice(btc.data),
+      LINK: parsePrice(link.data),
     },
     loading: eth.isLoading || btc.isLoading || link.isLoading,
     error: eth.error || btc.error || link.error,

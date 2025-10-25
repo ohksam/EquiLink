@@ -1,5 +1,6 @@
 import { useState, useRef } from "react";
 import type { ChangeEvent } from "react";
+import { usePriceData } from "../context/PriceContext";
 import { useReadContract } from "wagmi";
 import ResultsCard from "./ResultsCard";
 import type { SimulationResult } from "./ResultsCard";
@@ -7,35 +8,26 @@ import { EQUILINK_ADDRESS } from "../constants/contract";
 import EquiLinkAbi from "../abi/EquiLink.json";
 
 type Asset = "eth" | "btc" | "link";
-
-type Portfolio = {
-    eth: string;
-    btc: string;
-    link: string;
-};
-
-type Rule = {
-    entryPrice: string;
-    thresholdPercentDrop: string;
-    percentToSell: string;
-};
-
-type Rules = {
-    eth: Rule;
-    btc: Rule;
-    link: Rule;
-};
+type Portfolio = { eth: string; btc: string; link: string; };
+type Rule = { entryPrice: string; thresholdPercentDrop: string; percentToSell: string; };
+type Rules = { eth: Rule; btc: Rule; link: Rule; };
 
 const initialPortfolio = { eth: "", btc: "", link: "" };
 const initialRule = { entryPrice: "", thresholdPercentDrop: "", percentToSell: "" };
 const initialRules = { eth: { ...initialRule }, btc: { ...initialRule }, link: { ...initialRule } };
 
+const forceDropEntry = (current: number, threshold: number) => {
+    const buffer = 0.1 + Math.random(); // 10%+ buffer, plus randomization to allow re-demo
+    return (current * (1 + threshold / 100 + buffer)).toFixed(2);
+};
+
 const SimulationForm = () => {
     const [portfolio, setPortfolio] = useState<Portfolio>(initialPortfolio);
     const [rules, setRules] = useState<Rules>(initialRules);
-    const [trigger, setTrigger] = useState(0);
     const [result, setResult] = useState<SimulationResult | null>(null);
     const resultsRef = useRef<HTMLDivElement | null>(null);
+
+    const { chainlink } = usePriceData();
 
     const handlePortfolioChange = (e: ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
@@ -50,13 +42,24 @@ const SimulationForm = () => {
         }));
     };
 
-    // Demo button fills in realistic defaults - maybe randomize this later to take chainlink price and add 1-4%? 
     const handleDemo = () => {
         setPortfolio({ eth: "1", btc: "1", link: "1" });
         setRules({
-            eth: { entryPrice: "4100", thresholdPercentDrop: "20", percentToSell: "50" },
-            btc: { entryPrice: "115000", thresholdPercentDrop: "10", percentToSell: "40" },
-            link: { entryPrice: "18.5", thresholdPercentDrop: "15", percentToSell: "30" },
+            eth: {
+                entryPrice: chainlink.ETH ? forceDropEntry(chainlink.ETH, 20) : "4100",
+                thresholdPercentDrop: "20",
+                percentToSell: "50",
+            },
+            btc: {
+                entryPrice: chainlink.BTC ? forceDropEntry(chainlink.BTC, 10) : "115000",
+                thresholdPercentDrop: "10",
+                percentToSell: "40",
+            },
+            link: {
+                entryPrice: chainlink.LINK ? forceDropEntry(chainlink.LINK, 15) : "18.5",
+                thresholdPercentDrop: "15",
+                percentToSell: "30",
+            },
         });
     };
 
@@ -72,7 +75,12 @@ const SimulationForm = () => {
         percentToSell: BigInt(Number(r.percentToSell) || 0),
     });
 
-    const { data, isFetching, error } = useReadContract({
+    const {
+        data,
+        error,
+        isPending,
+        refetch,
+    } = useReadContract({
         address: EQUILINK_ADDRESS,
         abi: EquiLinkAbi,
         functionName: "simulateRebalance",
@@ -82,12 +90,12 @@ const SimulationForm = () => {
             makeRule(rules.btc),
             makeRule(rules.link),
         ],
-        query: { enabled: trigger > 0 },
+        query: { enabled: false }, // only fetch when refetch is called
     });
 
     const handleSimulate = () => {
         setResult(null); // clear old result
-        setTrigger((prev) => prev + 1);
+        refetch();
     };
 
     const anyFieldFilled =
@@ -96,7 +104,7 @@ const SimulationForm = () => {
             Object.values(rule).some((val) => val.trim() !== "")
         );
 
-    // Update results when data arrives
+    // update results when data arrives
     if (data && !result) {
         const [
             newEthUsd,
@@ -184,14 +192,14 @@ const SimulationForm = () => {
             ))}
 
             <button
-                className={`bg-cyan-500 text-white font-bold px-6 py-2 rounded-xl shadow transition ${!anyFieldFilled || isFetching
+                className={`bg-cyan-500 text-white font-bold px-6 py-2 rounded-xl shadow transition ${!anyFieldFilled || isPending
                     ? "opacity-60 cursor-not-allowed"
                     : "hover:bg-cyan-600"
                     }`}
                 onClick={handleSimulate}
-                disabled={!anyFieldFilled || isFetching}
+                disabled={!anyFieldFilled || isPending}
             >
-                {isFetching ? "Simulating..." : "Simulate Rebalance"}
+                {isPending ? "Simulating..." : "Simulate Rebalance"}
             </button>
 
             {error && <p className="text-red-500 mt-2">Error: {error.message}</p>}

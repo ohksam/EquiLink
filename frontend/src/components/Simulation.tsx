@@ -6,7 +6,7 @@ import SimulationForm from "./SimulationForm";
 const Simulation = () => {
   const prices = useContext(PriceContext);
 
-  // Show loading or error fallback if prices aren't loaded yet
+  // Loading state or error
   if (!prices || prices.loading) {
     return (
       <main className="flex flex-col items-center w-full h-full px-12 py-6 gap-8">
@@ -22,19 +22,21 @@ const Simulation = () => {
     );
   }
 
-  // Helper function to get price by asset symbol
-  const getPrice = (symbol: "ETH" | "BTC" | "LINK") =>
-    prices.tokens.find((t) => t.symbol === symbol)?.price ?? "—";
+  // Helper: get Chainlink Sepolia price for a token
+  const getChainlinkPrice = (symbol: "ETH" | "BTC" | "LINK") =>
+    prices.chainlink[symbol] !== undefined
+      ? prices.chainlink[symbol]
+      : "—";
 
   return (
     <main className="flex flex-col items-center w-full h-full px-12 py-6 gap-8">
-      {/* Price Cards Row */}
+      {/* Price Cards Row (using Chainlink Sepolia prices) */}
       <div className="flex gap-6 mb-0">
-        <PriceCard asset="ETH" price={getPrice("ETH")} />
-        <PriceCard asset="BTC" price={getPrice("BTC")} />
-        <PriceCard asset="LINK" price={getPrice("LINK")} />
+        <PriceCard asset="ETH" price={getChainlinkPrice("ETH")} />
+        <PriceCard asset="BTC" price={getChainlinkPrice("BTC")} />
+        <PriceCard asset="LINK" price={getChainlinkPrice("LINK")} />
       </div>
-      {/* Simulation Form + Results (all logic is inside SimulationForm) */}
+      {/* Simulation Form + Results */}
       <div className="w-full max-w-xl">
         <SimulationForm />
       </div>

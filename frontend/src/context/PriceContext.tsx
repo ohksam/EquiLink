@@ -2,7 +2,9 @@ import { createContext, useContext, useEffect, useState } from "react";
 import type { ReactNode } from "react";
 import { fetchCoinGeckoPrices } from "../utils/fetchCoinGecko";
 import { COINGECKO_TOKENS } from "../constants/tokens";
+import { useChainlinkPrices } from "../hooks/useChainlinkPrices";
 
+// Define your mainnet token type (CoinGecko)
 type TokenDisplay = {
   symbol: string;
   name: string;
@@ -12,12 +14,22 @@ type TokenDisplay = {
   volume24h?: number;
 };
 
+// Define your Chainlink testnet prices type
+type ChainlinkPrices = {
+  ETH?: number;
+  BTC?: number;
+  LINK?: number;
+};
+
+// Update your context type to include both
 type PriceContextType = {
-  tokens: TokenDisplay[];
+  tokens: TokenDisplay[];           // CoinGecko mainnet prices
+  chainlink: ChainlinkPrices;       // Chainlink Sepolia prices
   loading: boolean;
   refresh: () => void;
   lastUpdated: Date | null;
 };
+
 
 export const PriceContext = createContext<PriceContextType | undefined>(undefined);
 
@@ -26,6 +38,7 @@ const PriceProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(false);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
 
+  // Fetch mainnet prices (CoinGecko)
   const fetchPrices = async () => {
     setLoading(true);
     try {
@@ -53,8 +66,17 @@ const PriceProvider = ({ children }: { children: ReactNode }) => {
     // eslint-disable-next-line
   }, []);
 
+  // Fetch Chainlink Sepolia prices
+  const { prices: chainlinkPrices } = useChainlinkPrices();
+
   return (
-    <PriceContext.Provider value={{ tokens, loading, refresh: fetchPrices, lastUpdated }}>
+    <PriceContext.Provider value={{
+      tokens,
+      chainlink: chainlinkPrices,
+      loading,
+      refresh: fetchPrices,
+      lastUpdated
+    }}>
       {children}
     </PriceContext.Provider>
   );

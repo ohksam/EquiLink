@@ -35,7 +35,7 @@ const PriceCard = ({ asset, price, icon }: PriceCardProps) => {
       <div className="text-lg font-semibold">{info.name}</div>
       <div className="text-sm text-gray-500">{asset}</div>
       <div className="text-xl font-bold">
-        {typeof price === "number" ? `$${price.toLocaleString()}` : price}
+        {typeof price === "number" ? `$${price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : price}
       </div>
     </div>
   );
