@@ -130,7 +130,7 @@ const SimulationForm = () => {
                 <h2 className="text-3xl font-bold">Simulate Portfolio Rebalance</h2>
                 <button
                     onClick={handleDemo}
-                    className="text-sm font-semibold text-cyan-700 border border-cyan-700 px-3 py-1 rounded-lg hover:bg-cyan-100 transition"
+                    className="text-sm font-semibold text-cyan-700 border border-cyan-700 px-3 py-1 rounded-lg hover:bg-cyan-100 transition pulse-once"
                 >
                     Demo
                 </button>

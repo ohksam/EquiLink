@@ -29,7 +29,7 @@ const PriceCard = ({ asset, price, icon }: PriceCardProps) => {
 
   return (
     <div
-      className={`flex flex-col items-center gap-1 rounded-xl px-4 py-2 shadow-md ${info.color} min-w-[120px]`}
+      className={`flex flex-col items-center gap-1 rounded-xl px-4 py-2 shadow-md ${info.color} min-w-[120px] hover-bounce`}
     >
       <div className="text-3xl">{icon ?? info.emoji}</div>
       <div className="text-lg font-semibold">{info.name}</div>
