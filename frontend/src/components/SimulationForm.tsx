@@ -50,7 +50,7 @@ const SimulationForm = () => {
         }));
     };
 
-    // Demo button fills in realistic defaults
+    // Demo button fills in realistic defaults - maybe randomize this later to take chainlink price and add 1-4%? 
     const handleDemo = () => {
         setPortfolio({ eth: "1", btc: "1", link: "1" });
         setRules({

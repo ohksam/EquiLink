@@ -2,12 +2,14 @@ import { BrowserRouter, Routes, Route } from "react-router";
 import { config } from "./config";
 import { WagmiProvider } from "wagmi";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import PriceProvider from "./context/PriceContext";
 
 // components
 import Sidebar from "./components/Sidebar";
 import Home from "./components/Home";
 import Simulation from "./components/Simulation";
 import Dashboard from "./components/Dashboard";
+import About from "./components/About";
 
 const queryClient = new QueryClient();
 
@@ -21,7 +23,8 @@ function Layout() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/simulation" element={<Simulation />} />
-          <Route path="/dashboard" element={<Dashboard />}></Route>
+          <Route path="/market" element={<Dashboard />}></Route>
+          <Route path="/about" element={<About />}></Route>
         </Routes>
       </main>
     </div>
@@ -33,7 +36,9 @@ function App() {
     <WagmiProvider config={config}>
       <QueryClientProvider client={queryClient}>
         <BrowserRouter>
-          <Layout />
+          <PriceProvider>
+            <Layout />
+          </PriceProvider>
         </BrowserRouter>
       </QueryClientProvider>
     </WagmiProvider>
