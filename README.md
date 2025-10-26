@@ -47,3 +47,39 @@ Output:
 | Styling | TailwindCSS |
 
 ---
+
+## 🛠️ Features
+
+### ✅ MVP (Completed)
+- Input simulated portfolio in USD
+- Set custom stop-loss triggers per asset
+- Chainlink price feeds pulled at simulate-time
+- Compare strategy vs HODL portfolio value
+- Stateless simulation — no real funds touched
+- Simple, responsive frontend
+
+### 🧭 Future Roadmap
+- [ ] Simulate converting from one crypto to another (e.g., ETH → BTC)
+- [ ] “Surge Detection” mode: small allocation gambles on price spikes
+- [ ] Backtesting with historical data (e.g. from dune.xyz or CCXT)
+- [ ] Support gas fee estimation and slippage modeling
+- [ ] Preset strategy templates (e.g. rebalancing bands, DCA exits)
+- [ ] Share or save strategy runs
+- [ ] Integrate Chainlink Functions for external signals (e.g. sentiment, volatility)
+- [ ] Deploy safe live contract with optional real trading hooks (via delegate vault or multisig)
+
+---
+
+## 🔐 Disclaimers
+
+- This app does **not** execute any real trades.
+- All simulations are run locally in your browser or via view-only smart contract calls.
+- Price feeds are pulled at the time of simulation and may not reflect future price movement.
+- This is a research/education project — not financial advice or production trading software.
+
+---
+
+## 🧑‍💻 Author
+
+**Sam Oh**  
+Built as a learning project for Solidity, Chainlink integration, and frontend ↔ smart contract architecture.
