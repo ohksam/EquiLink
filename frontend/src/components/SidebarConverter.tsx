@@ -116,7 +116,7 @@ const SidebarConverter = () => {
                 </div>
             )}
             <div className="text-xs text-gray-500 mt-2 text-center">
-                Prices update every refresh.
+                Based on Sepolia prices (for simulation only).
             </div>
         </div>
     );

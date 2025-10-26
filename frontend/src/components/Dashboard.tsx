@@ -14,9 +14,9 @@ const Dashboard = () => {
                 <button
                     onClick={refresh}
                     disabled={loading}
-                    className={`px-4 py-2 rounded-lg font-medium shadow ${loading
-                        ? "bg-gray-300 text-gray-600 cursor-not-allowed"
-                        : "bg-gray-100 hover:bg-gray-200 text-gray-800"
+                    className={`px-4 py-2 rounded-lg font-medium shadow border border-teal-200 ${loading
+                        ? "bg-teal-50 text-teal-300 cursor-not-allowed"
+                        : "bg-white/80 hover:bg-teal-100 text-teal-700"
                         }`}
                 >
                     {loading ? "Refreshing..." : "Refresh Prices"}
@@ -44,7 +44,7 @@ const Dashboard = () => {
                 {tokens.map((token) => (
                     <div
                         key={token.symbol}
-                        className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm hover:shadow-md transition"
+                        className="bg-white/90 border border-gray-200 rounded-xl p-4 shadow-md hover:shadow-lg transition"
                     >
                         {loading ? (
                             <div className="animate-pulse space-y-3">
@@ -88,7 +88,7 @@ const Dashboard = () => {
                     </div>
                 ))}
             </div>
-            
+
             {lastUpdated && (
                 <p className="text-sm text-gray-500 mt-1">
                     Last updated: {formatTime(lastUpdated)}

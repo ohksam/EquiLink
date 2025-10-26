@@ -19,7 +19,7 @@ const Sidebar = () => {
           EquiLink
         </div>
         {/* Navigation */}
-        <nav className="mt-4">
+        <nav className="mt-2">
           <ul className="space-y-1">
             <li>
               <NavLink to="/" className={linkClasses}>
