@@ -29,28 +29,39 @@ type PriceContextType = {
   lastUpdated: Date | null;
 };
 
-
 export const PriceContext = createContext<PriceContextType | undefined>(undefined);
 
 const PriceProvider = ({ children }: { children: ReactNode }) => {
+  // --- Mainnet price state (CoinGecko) ---
   const [tokens, setTokens] = useState<TokenDisplay[]>(COINGECKO_TOKENS);
   const [loading, setLoading] = useState(false);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
 
-  // Fetch mainnet prices (CoinGecko)
+  // --- Chainlink (testnet) price state ---
+  const { prices: liveChainlinkPrices } = useChainlinkPrices();
+  const [chainlink, setChainlink] = useState<ChainlinkPrices>({});
+
+  // Store Chainlink feed values in stable state
+  useEffect(() => {
+    setChainlink(liveChainlinkPrices);
+  }, [liveChainlinkPrices]);
+
+  // --- Fetch live mainnet prices from CoinGecko ---
   const fetchPrices = async () => {
     setLoading(true);
     try {
       const prices = await fetchCoinGeckoPrices(
-        COINGECKO_TOKENS.map(t => t.id),
+        COINGECKO_TOKENS.map((t) => t.id),
         import.meta.env.VITE_COINGECKO_API_KEY
       );
+
       const updated = COINGECKO_TOKENS.map((t) => ({
         ...t,
         price: prices[t.id],
-        change24h: (Math.random() - 0.5) * 6,
+        change24h: (Math.random() - 0.5) * 6, // random % swing for demo purposes
         volume24h: Math.floor(1_000_000 + Math.random() * 9_000_000),
       }));
+
       setTokens(updated);
       setLastUpdated(new Date());
     } catch (err) {
@@ -60,22 +71,21 @@ const PriceProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  // Fetch initial prices on mount
   useEffect(() => {
     fetchPrices();
-    // eslint-disable-next-line
   }, []);
 
-  // Fetch Chainlink Sepolia prices
-  const { prices: chainlinkPrices } = useChainlinkPrices();
-
   return (
-    <PriceContext.Provider value={{
-      tokens,
-      chainlink: chainlinkPrices,
-      loading,
-      refresh: fetchPrices,
-      lastUpdated
-    }}>
+    <PriceContext.Provider
+      value={{
+        tokens,
+        chainlink,
+        loading,
+        refresh: fetchPrices,
+        lastUpdated,
+      }}
+    >
       {children}
     </PriceContext.Provider>
   );

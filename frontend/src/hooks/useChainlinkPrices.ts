@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { useReadContract } from "wagmi";
 import { aggregatorV3InterfaceABI } from "../constants/chainlinkAbi";
 
@@ -9,6 +10,7 @@ const FEEDS = {
 
 const CHAIN_ID = 11155111;
 
+// Reads Chainlink Sepolia price feeds for ETH/BTC/LINK
 export function useChainlinkPrices() {
   const eth = useReadContract({
     address: FEEDS.ETH,
@@ -16,12 +18,14 @@ export function useChainlinkPrices() {
     functionName: "latestRoundData",
     chainId: CHAIN_ID,
   });
+
   const btc = useReadContract({
     address: FEEDS.BTC,
     abi: aggregatorV3InterfaceABI,
     functionName: "latestRoundData",
     chainId: CHAIN_ID,
   });
+
   const link = useReadContract({
     address: FEEDS.LINK,
     abi: aggregatorV3InterfaceABI,
@@ -29,21 +33,30 @@ export function useChainlinkPrices() {
     chainId: CHAIN_ID,
   });
 
-  // debugging
-//   console.log("ETH:", eth.data, "BTC:", btc.data, "LINK:", link.data);
-
   const parsePrice = (result: any) =>
-    result && result[1] !== undefined
-      ? Number(result[1]) / 1e8
-      : undefined;
+    result && result[1] !== undefined ? Number(result[1]) / 1e8 : undefined;
 
-  return {
-    prices: {
-      ETH: parsePrice(eth.data),
-      BTC: parsePrice(btc.data),
-      LINK: parsePrice(link.data),
-    },
-    loading: eth.isLoading || btc.isLoading || link.isLoading,
-    error: eth.error || btc.error || link.error,
-  };
+  // Memoize the returned object so it doesn’t re-create every render
+  return useMemo(
+    () => ({
+      prices: {
+        ETH: parsePrice(eth.data),
+        BTC: parsePrice(btc.data),
+        LINK: parsePrice(link.data),
+      },
+      loading: eth.isLoading || btc.isLoading || link.isLoading,
+      error: eth.error || btc.error || link.error,
+    }),
+    [
+      eth.data,
+      btc.data,
+      link.data,
+      eth.isLoading,
+      btc.isLoading,
+      link.isLoading,
+      eth.error,
+      btc.error,
+      link.error,
+    ]
+  );
 }
