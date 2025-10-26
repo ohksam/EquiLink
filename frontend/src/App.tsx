@@ -16,7 +16,7 @@ const queryClient = new QueryClient();
 function Layout() {
   return (
     <div className="flex h-screen overflow-hidden">
-      <aside className="w-64 sticky top-0 h-screen bg-gray-100">
+      <aside className="w-64 sticky top-0 h-screen">
         <Sidebar />
       </aside>
       <main className="flex-1 overflow-y-auto">

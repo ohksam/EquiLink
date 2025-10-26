@@ -68,7 +68,7 @@ const SidebarConverter = () => {
     };
 
     return (
-        <div className="flex flex-col items-center w-full max-w-[230px] p-3 mb-4 rounded-xl bg-white shadow border border-teal-100">
+        <div className="flex flex-col items-center w-full max-w-[230px] p-3 mb-2 rounded-xl bg-white shadow border border-teal-100">
             <div className="font-semibold mb-2 text-teal-800 text-center">Quick USD Converter</div>
             {loading || !price ? (
                 <div className="text-xs text-gray-400">Loading prices...</div>

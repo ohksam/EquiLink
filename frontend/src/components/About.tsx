@@ -14,7 +14,7 @@ const About = () => (
           <span className="font-semibold">Portfolio Simulation:</span> Uses official Chainlink price feeds (Sepolia testnet) for accurate, decentralized pricing during rebalancing simulations.
         </li>
         <li>
-          <span className="font-semibold">Market Data:</span> Live price cards and dashboard use CoinGecko’s public API for up-to-date quotes and market stats.
+          <span className="font-semibold">Market Data:</span> Live price cards and dashboard use CoinGecko's public API for up-to-date quotes and market stats.
         </li>
         <li>
           <span className="font-semibold">Quick Converter:</span> Instantly converts between USD and supported tokens (ETH, BTC, LINK) using the latest prices.
@@ -28,7 +28,7 @@ const About = () => (
         This project was built to showcase modern Web3 engineering and frontend design, and to make crypto simulation and market data more transparent and user-friendly.
       </p>
       <p className="text-gray-700 mt-2">
-        It’s a hands-on demo for learning, portfolio presentation, and exploring real-world integration of blockchain data and open APIs.
+        It's a hands-on demo for learning, portfolio presentation, and exploring real-world integration of blockchain data and open APIs.
       </p>
     </section>
 

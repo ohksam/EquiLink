@@ -35,7 +35,7 @@ const Dashboard = () => {
                 </a>
                 .{" "}
                 <span className="italic text-gray-500">
-                    Simulation and Converter prices use Chainlink’s Sepolia testnet feeds for demonstration.
+                    Simulation and Converter prices use Chainlink's Sepolia testnet feeds for demonstration.
                 </span>
             </p>
 

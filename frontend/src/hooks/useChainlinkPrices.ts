@@ -1,4 +1,3 @@
-// useChainlinkPrices.ts
 import { useReadContract } from "wagmi";
 import { aggregatorV3InterfaceABI } from "../constants/chainlinkAbi";
 

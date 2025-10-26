@@ -2,7 +2,7 @@ const COINGECKO_BASE = "https://api.coingecko.com/api/v3/simple/price";
 
 export async function fetchCoinGeckoPrices(
   ids: string[],
-  apiKey?: string // optional for demo/free tier; required if you have a key
+  apiKey?: string // incorporate api key with vercel proxy - it's working for now without a key so wait until vercel host
 ): Promise<Record<string, number>> {
 
   if (ids.length === 0) return {};

@@ -19,7 +19,7 @@ const Sidebar = () => {
           EquiLink
         </div>
         {/* Navigation */}
-        <nav className="mt-8">
+        <nav className="mt-4">
           <ul className="space-y-1">
             <li>
               <NavLink to="/" className={linkClasses}>
@@ -49,9 +49,10 @@ const Sidebar = () => {
         </nav>
       </div>
 
-      {/* BOTTOM: Converter and badges in a single vertical column */}
+      {/* BOTTOM: Converter, badges, and GitHub link */}
       <div className="flex flex-col items-center gap-0 w-full px-2 mb-0">
         <SidebarConverter />
+
         <div className="p-6 flex flex-col items-center space-y-2 w-full">
           <span className="bg-blue-100 text-blue-700 px-3 py-1 rounded-lg text-xs font-semibold">
             Powered by Chainlink
@@ -59,9 +60,19 @@ const Sidebar = () => {
           <span className="bg-gray-100 text-gray-600 px-3 py-1 rounded-lg text-xs font-semibold">
             Demo Build - Sepolia Feeds
           </span>
+
+          <a
+            href="https://github.com/ohksam/EquiLink"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-2 text-gray-500 text-xs mt-2 hover:text-gray-800 transition"
+          >
+            <img src="../../public/github-mark.svg" alt="GitHub" className="w-4 h-4 opacity-80" />
+            {/* <span>View Source</span> */}
+          </a>
         </div>
       </div>
-    </aside>
+    </aside >
   );
 
 };
