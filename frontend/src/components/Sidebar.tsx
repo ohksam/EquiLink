@@ -67,7 +67,7 @@ const Sidebar = () => {
             rel="noopener noreferrer"
             className="flex items-center gap-2 text-gray-500 text-xs mt-2 hover:text-gray-800 transition"
           >
-            <img src="../../github-mark.svg" alt="GitHub" className="w-4 h-4 opacity-80" />
+            <img src="../../github-mark.svg" alt="GitHub" className="w-6 h-6 opacity-80" />
             {/* <span>View Source</span> */}
           </a>
         </div>

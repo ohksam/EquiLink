@@ -29,7 +29,7 @@ const ResultsCard = ({ result }: Props) => {
   const diffTotal = result.simulatedUsdValue - result.hodlUsdValue;
 
   return (
-    <div className="bg-cyan-100 border border-cyan-200 rounded-lg p-6 shadow w-full mt-8">
+    <div className="bg-white/70 border border-teal-100 rounded-lg p-6 shadow w-full mt-8 backdrop-blur-md">
       <h3 className="text-xl font-semibold mb-3">Simulation Result</h3>
       <table className="w-full text-left mb-3">
         <thead>

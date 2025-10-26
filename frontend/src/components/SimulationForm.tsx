@@ -185,8 +185,7 @@ const SimulationForm = () => {
             ))}
 
             <button
-                className={`bg-cyan-500 text-white font-bold px-6 py-2 rounded-xl shadow transition ${!anyFieldFilled || isSimulating ? "opacity-60 cursor-not-allowed" : "hover:bg-cyan-600"
-                    }`}
+                className={`bg-teal-400 text-white font-bold px-6 py-2 rounded-xl shadow transition ${!anyFieldFilled || isSimulating ? "opacity-60 cursor-not-allowed" : "hover:bg-teal-300"}`}
                 onClick={handleSimulate}
                 disabled={!anyFieldFilled || isSimulating}
             >

@@ -19,7 +19,8 @@ function Layout() {
       <aside className="w-64 sticky top-0 h-screen">
         <Sidebar />
       </aside>
-      <main className="flex-1 overflow-y-auto">
+      {/* <main className="flex-1 overflow-y-auto min-h-screen bg-radial from-white to-teal-200">  */} {/* radial */}
+      <main className="flex-1 overflow-y-auto min-h-screen bg-gradient-to-tl from-white to-teal-200">
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/simulation" element={<Simulation />} />
