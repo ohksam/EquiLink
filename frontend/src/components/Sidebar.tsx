@@ -17,6 +17,7 @@ const Sidebar = () => {
         <div className="p-6 font-bold text-2xl text-teal-800 tracking-wide">
           <span className="inline-block align-middle mr-2">🧮</span>
           EquiLink
+          <span className="ml-2 text-xs text-gray-500 align-top">v1</span>
         </div>
         {/* Navigation */}
         <nav className="mt-2">
