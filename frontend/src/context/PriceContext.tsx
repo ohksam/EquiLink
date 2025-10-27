@@ -4,7 +4,7 @@ import { fetchCoinGeckoPrices } from "../utils/fetchCoinGecko";
 import { COINGECKO_TOKENS } from "../constants/tokens";
 import { useChainlinkPrices } from "../hooks/useChainlinkPrices";
 
-// Mainnet prices from CoinGecko
+// --- Types ---
 type TokenDisplay = {
   symbol: string;
   name: string;
@@ -14,7 +14,6 @@ type TokenDisplay = {
   volume24h?: number;
 };
 
-// Chainlink prices for simulation, pricecards, and converter/calculator
 type ChainlinkPrices = {
   ETH?: number;
   BTC?: number;
@@ -22,44 +21,34 @@ type ChainlinkPrices = {
 };
 
 type PriceContextType = {
-  tokens: TokenDisplay[];           // CoinGecko mainnet prices
-  chainlink: ChainlinkPrices;       // Chainlink Sepolia prices
+  tokens: TokenDisplay[];
+  chainlink: ChainlinkPrices;
   loading: boolean;
   refresh: () => void;
   lastUpdated: Date | null;
 };
 
+// --- Context ---
 export const PriceContext = createContext<PriceContextType | undefined>(undefined);
 
 const PriceProvider = ({ children }: { children: ReactNode }) => {
-  // --- Mainnet price state (CoinGecko) ---
   const [tokens, setTokens] = useState<TokenDisplay[]>(COINGECKO_TOKENS);
   const [loading, setLoading] = useState(false);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
 
-  // --- Chainlink (testnet) price state ---
-  const { prices: liveChainlinkPrices } = useChainlinkPrices();
-  const [chainlink, setChainlink] = useState<ChainlinkPrices>({});
+  const { prices: chainlinkPrices, loading: chainlinkLoading } = useChainlinkPrices();
 
-  // Store Chainlink feed values in stable state
-  useEffect(() => {
-    setChainlink(liveChainlinkPrices);
-  }, [liveChainlinkPrices]);
-
-  // --- Fetch live mainnet prices from CoinGecko ---
+  // --- Fetch CoinGecko prices (mainnet data) ---
   const fetchPrices = async () => {
     setLoading(true);
     try {
-      const prices = await fetchCoinGeckoPrices(
-        COINGECKO_TOKENS.map((t) => t.id),
-        import.meta.env.VITE_COINGECKO_API_KEY
-      );
+      const prices = await fetchCoinGeckoPrices(COINGECKO_TOKENS.map((t) => t.id));
 
       const updated = COINGECKO_TOKENS.map((t) => ({
         ...t,
-        price: prices[t.id],
-        change24h: (Math.random() - 0.5) * 6, // random % swing for demo purposes
-        volume24h: Math.floor(1_000_000 + Math.random() * 9_000_000),
+        price: prices[t.id] ?? null,
+        change24h: (Math.random() - 0.5) * 6, // placeholder % change
+        volume24h: Math.floor(1_000_000 + Math.random() * 9_000_000), // placeholder volume
       }));
 
       setTokens(updated);
@@ -71,7 +60,7 @@ const PriceProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  // Fetch initial prices on mount
+  // --- Fetch on mount ---
   useEffect(() => {
     fetchPrices();
   }, []);
@@ -80,8 +69,8 @@ const PriceProvider = ({ children }: { children: ReactNode }) => {
     <PriceContext.Provider
       value={{
         tokens,
-        chainlink,
-        loading,
+        chainlink: chainlinkPrices ?? {},
+        loading: loading || chainlinkLoading,
         refresh: fetchPrices,
         lastUpdated,
       }}
@@ -91,6 +80,7 @@ const PriceProvider = ({ children }: { children: ReactNode }) => {
   );
 };
 
+// --- Hook ---
 export const usePriceData = () => {
   const ctx = useContext(PriceContext);
   if (!ctx) throw new Error("usePriceData must be used within a PriceProvider");

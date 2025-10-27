@@ -10,7 +10,17 @@ const FEEDS = {
 
 const CHAIN_ID = 11155111;
 
-// Reads Chainlink Sepolia price feeds for ETH/BTC/LINK
+// Helper to safely parse feed response
+function parseRoundData(result: unknown): number | undefined {
+  if (!Array.isArray(result) || result.length < 2) return undefined;
+  const answer = Number(result[1]);
+  return Number.isFinite(answer) ? answer / 1e8 : undefined;
+}
+
+
+// Reads Chainlink Sepolia price feeds for ETH/BTC/LINK.
+// Returns latest prices + loading/error flags.
+
 export function useChainlinkPrices() {
   const eth = useReadContract({
     address: FEEDS.ETH,
@@ -33,30 +43,27 @@ export function useChainlinkPrices() {
     chainId: CHAIN_ID,
   });
 
-  const parsePrice = (result: any) =>
-    result && result[1] !== undefined ? Number(result[1]) / 1e8 : undefined;
+  return useMemo(() => {
+    const prices = {
+      ETH: parseRoundData(eth.data),
+      BTC: parseRoundData(btc.data),
+      LINK: parseRoundData(link.data),
+    };
 
-  // Memoize the returned object so it doesn’t re-create every render
-  return useMemo(
-    () => ({
-      prices: {
-        ETH: parsePrice(eth.data),
-        BTC: parsePrice(btc.data),
-        LINK: parsePrice(link.data),
-      },
-      loading: eth.isLoading || btc.isLoading || link.isLoading,
-      error: eth.error || btc.error || link.error,
-    }),
-    [
-      eth.data,
-      btc.data,
-      link.data,
-      eth.isLoading,
-      btc.isLoading,
-      link.isLoading,
-      eth.error,
-      btc.error,
-      link.error,
-    ]
-  );
+    // unified state
+    const loading = eth.isLoading || btc.isLoading || link.isLoading;
+    const error = eth.error || btc.error || link.error;
+
+    return { prices, loading, error };
+  }, [
+    eth.data,
+    btc.data,
+    link.data,
+    eth.isLoading,
+    btc.isLoading,
+    link.isLoading,
+    eth.error,
+    btc.error,
+    link.error,
+  ]);
 }

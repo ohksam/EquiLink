@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef } from "react";
 import type { ChangeEvent } from "react";
 import { usePriceData } from "../context/PriceContext";
 import { useReadContract } from "wagmi";
@@ -75,7 +75,7 @@ const SimulationForm = () => {
         percentToSell: BigInt(Number(r.percentToSell) || 0),
     });
 
-    const { data, error, isLoading, refetch } = useReadContract({
+    const {  error, refetch } = useReadContract({
         address: EQUILINK_ADDRESS,
         abi: EquiLinkAbi,
         functionName: "simulateRebalance",
